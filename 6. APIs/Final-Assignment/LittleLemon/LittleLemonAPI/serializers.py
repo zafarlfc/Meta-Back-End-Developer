@@ -11,3 +11,17 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class MenuItemSerializer(serializers.ModelSerializer):
+    query_set = Category.objects.all()
+    category = serializers.PrimaryKeyRelatedField(queryset=query_set)
+
+    # category = CategorySerializer(read_only=True)
+    class Meta:
+        model = MenuItem
+        fields = "__all__"
+
+
+class UserSerilializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "email"]
