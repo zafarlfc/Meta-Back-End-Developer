@@ -2,8 +2,8 @@ from requests import Response
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Cart, Category, MenuItem
-from .serializers import CartSerializer, CategorySerializer, MenuItemSerializer
+from .models import Cart, Category, MenuItem, Order
+from .serializers import CartSerializer, CategorySerializer, MenuItemSerializer, OrderSerializer
 
 # Create your views here.
 
@@ -56,4 +56,22 @@ class CartView(generics.ListCreateAPIView):
     def delete(self, request, *args, **kwargs):
         Cart.objects.all().filter(user=self.request.user).delete()
         return Response({"status": "success"})
+
+
+class OrderView(generics.ListCreateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return Order.objects.all()
         
+        elif self.request.user.groups.count() == 0:
+            return Order.objects.all().filter(user=self.request.user)
+        
+        elif self.request.user.groups.filter(name="Delivery Crew").exists():
+            return Order.objects.all().filter(delivery_crew=self.request.user)
+        
+        else:
+            return Order.objects.all()
