@@ -75,4 +75,9 @@ class OrderView(generics.ListCreateAPIView):
         
         else:
             return Order.objects.all()
-        
+    
+
+    def create(self, request):
+        menuitem_count = Cart.objects.all().filter(user=self.request.user).count()
+        if menuitem_count == 0:
+            return Response({"message:": "No item in cart"})
