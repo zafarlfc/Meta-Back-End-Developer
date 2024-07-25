@@ -89,3 +89,15 @@ class OrderView(generics.ListCreateAPIView):
         for item in items.values():
             total += item["price"]
         return total
+
+
+class SingleOrderView(generics.RetrieveUpdateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        if self.request.user.groups.count() == 0:
+            return Response({"message": "User cannot update order"})
+        else:
+            return super().update(request, *args, **kwargs)
