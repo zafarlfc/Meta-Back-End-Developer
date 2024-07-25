@@ -81,3 +81,11 @@ class OrderView(generics.ListCreateAPIView):
         menuitem_count = Cart.objects.all().filter(user=self.request.user).count()
         if menuitem_count == 0:
             return Response({"message:": "No item in cart"})
+    
+    
+    def get_total_price(self, user):
+        total = 0
+        items = Cart.objects.all().filter(user=user).all()
+        for item in items.values():
+            total += item["price"]
+        return total
