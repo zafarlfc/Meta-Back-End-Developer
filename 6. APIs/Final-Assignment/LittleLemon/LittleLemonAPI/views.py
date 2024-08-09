@@ -106,6 +106,8 @@ class OrderView(generics.ListCreateAPIView):
             result = order_serializer.data.copy()
             result["total"] = total
             return Response(order_serializer.data)
+        
+        return Response({"message:": "Bad Request"})
     
     
     def get_total_price(self, user):
