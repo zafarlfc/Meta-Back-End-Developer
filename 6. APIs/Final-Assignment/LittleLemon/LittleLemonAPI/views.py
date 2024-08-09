@@ -2,7 +2,7 @@ from requests import Response
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Cart, Category, MenuItem, Order
+from .models import Cart, Category, MenuItem, Order, OrderItem
 from .serializers import CartSerializer, CategorySerializer, MenuItemSerializer, OrderSerializer
 
 # Create your views here.
@@ -81,6 +81,12 @@ class OrderView(generics.ListCreateAPIView):
         menuitem_count = Cart.objects.all().filter(user=self.request.user).count()
         if menuitem_count == 0:
             return Response({"message:": "No item in cart"})
+        
+        data = request.data.copy()
+        total = self.get_total_price(self.request.user)
+        data["total"] = total
+        data["user"] = self.request.user.id
+        order_serializer = OrderSerializer(data=data)
     
     
     def get_total_price(self, user):
