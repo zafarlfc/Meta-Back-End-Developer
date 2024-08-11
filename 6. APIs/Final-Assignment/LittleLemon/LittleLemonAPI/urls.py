@@ -13,5 +13,10 @@ urlpatterns = [
          views.GroupViewSet.as_view(
             {"get": "list", "post": "create", "delete": "destroy"}
         ),
+    ),
+    path("groups/delivery-crew/users",
+         views.DeliveryCrewViewSet.as_view(
+            {"get": "list", "post": "create", "delete": "destroy"}
+        ),
     )
 ]
