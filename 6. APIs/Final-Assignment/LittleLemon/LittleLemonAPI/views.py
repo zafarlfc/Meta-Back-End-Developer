@@ -1,9 +1,12 @@
 from requests import Response
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics, viewsets
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+
+from django.contrib.auth.models import User
 
 from .models import Cart, Category, MenuItem, Order, OrderItem
-from .serializers import CartSerializer, CategorySerializer, MenuItemSerializer, OrderSerializer
+from .serializers import CartSerializer, CategorySerializer, MenuItemSerializer, \
+    OrderSerializer, UserSerilializer
 
 # Create your views here.
 
@@ -128,3 +131,13 @@ class SingleOrderView(generics.RetrieveUpdateAPIView):
             return Response({"message": "User cannot update order"})
         else:
             return super().update(request, *args, **kwargs)
+    
+
+class GroupViewSet(viewsets.ViewSet):
+    permission_classes = [IsAdminUser]
+
+    def list(self):
+        users = User.objects.all().filter(groups__name="Manager")
+        items = UserSerilializer(users, many=True)
+        return Response(items.data)
+    
