@@ -1,5 +1,5 @@
 from requests import Response
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from django.contrib.auth.models import User, Group
@@ -162,4 +162,14 @@ class DeliveryCrewViewSet(viewsets.ViewSet):
         users = User.objects.all().filter(groups__name="Delivery Crew")
         items = UserSerilializer(users, many=True)
         return Response(items.data)
+    
+    def create(self, request):
+        if self.request.user.is_superuser == False:
+            if self.request.user.groups.filter(name="Manager").exists() == False:
+                return Response({"message": "Unauthorized"}, status.HTTP_403_FORBIDDEN)
+
+        user = get_object_or_404(User, username=request.data["username"])
+        dc = Group.objects.get(name="Delivery Crew")
+        dc.user_set.add(user)
+        return Response({"message": "User added to the Delivery Crew group"}, 200)
     
