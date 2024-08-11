@@ -2,7 +2,8 @@ from requests import Response
 from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
+from django.shortcuts import get_object_or_404
 
 from .models import Cart, Category, MenuItem, Order, OrderItem
 from .serializers import CartSerializer, CategorySerializer, MenuItemSerializer, \
@@ -140,4 +141,10 @@ class GroupViewSet(viewsets.ViewSet):
         users = User.objects.all().filter(groups__name="Manager")
         items = UserSerilializer(users, many=True)
         return Response(items.data)
+
+    def create(self, request):
+        user = get_object_or_404(User, username=request.data["username"])
+        managers = Group.objects.get(name="Manager")
+        managers.user_set.add(user)
+        return Response({"message": "user added to the manager group"}, 200)
     
