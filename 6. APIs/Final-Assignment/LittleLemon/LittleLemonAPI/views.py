@@ -153,4 +153,13 @@ class GroupViewSet(viewsets.ViewSet):
         managers = Group.objects.get(name="Manager")
         managers.user_set.remove(user)
         return Response({"message": "User removed from the manager group"}, 200)
+
+
+class DeliveryCrewViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self):
+        users = User.objects.all().filter(groups__name="Delivery Crew")
+        items = UserSerilializer(users, many=True)
+        return Response(items.data)
     
