@@ -1,6 +1,6 @@
-from requests import Response
 from rest_framework import generics, viewsets, status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.response import Response
 
 from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404
@@ -84,7 +84,7 @@ class OrderView(generics.ListCreateAPIView):
     def create(self, request):
         menuitem_count = Cart.objects.all().filter(user=self.request.user).count()
         if menuitem_count == 0:
-            return Response({"message:": "No item in cart"})
+            return Response({"message": "No item in cart!"})
         
         data = request.data.copy()
         total = self.get_total_price(self.request.user)
@@ -137,7 +137,7 @@ class SingleOrderView(generics.RetrieveUpdateAPIView):
 class GroupViewSet(viewsets.ViewSet):
     permission_classes = [IsAdminUser]
 
-    def list(self):
+    def list(self, request):
         users = User.objects.all().filter(groups__name="Manager")
         items = UserSerilializer(users, many=True)
         return Response(items.data)
@@ -158,7 +158,7 @@ class GroupViewSet(viewsets.ViewSet):
 class DeliveryCrewViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
-    def list(self):
+    def list(self, request):
         users = User.objects.all().filter(groups__name="Delivery Crew")
         items = UserSerilializer(users, many=True)
         return Response(items.data)
